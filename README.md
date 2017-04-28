@@ -9,7 +9,7 @@ Next, you'll understand the OpenStack infrastructure from a cloud user point of 
 
 The book will show you how to carry out performance tuning based on OpenStack service logs. You will be able to master OpenStack benchmarking and performance tuning. By the end of the book, you'll be ready to take steps to deploy and manage an OpenStack cloud with the latest open source technologies.
 
-##Instructions and Navigation
+## Instructions and Navigation
 
 All of the code is organized into folders, code files are available for Chapter 1, 2, 3, 4 and project file. For example, Chapter 1. 
 
@@ -29,5 +29,14 @@ In this book Mastering OpenStack Second Edition code files consist of:
 * Code Templates for both Heat and Terraform dedicated for Chapter 8 
 * Code Templates for Shaker and Rally dedicated for Chapter 12
 * No codes files for chapter 9, 10, and 12
+
+# Related Neural Network Products:
+* [OpenStack for Architects](https://www.packtpub.com/virtualization-and-cloud/openstack-architects?utm_source=github&utm_medium=repository&utm_content=9781784395100)
+* [Learning OpenStack Networking (Neutron)](https://www.packtpub.com/virtualization-and-cloud/learning-openstack-networking-neutron?utm_source=github&utm_medium=repository&utm_content=9781783983308)
+* [OpenStack Cloud Computing Cookbook - Third Edition](https://www.packtpub.com/virtualization-and-cloud/openstack-cloud-computing-cookbook-third-edition?utm_source=github&utm_medium=repository&utm_content=9781782174783)
+
+
+### Suggestions and Feedback
+[Click here](https://docs.google.com/forms/d/e/1FAIpQLSe5qwunkGf6PUvzPirPDtuy1Du5Rlzew23UBp2S-P3wB-GcwQ/viewform) if you have any feedback or suggestions.
 
 
