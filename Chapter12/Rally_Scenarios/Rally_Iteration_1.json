@@ -1,0 +1,23 @@
+{
+    "KeystoneBasic.authenticate_user_and_validate_token": [
+        {
+            "args": {},
+            "runner": {
+                "type": "constant",
+                "times": 50,
+                "concurrency": 25
+            },
+            "context": {
+                 "users": {
+                      "tenants": 1,
+                      "users_per_tenant": 1
+                 }
+            },
+            "sla": {
+                "failure_rate": {
+                    "max": 1
+                },
+            }
+        }
+    ]
+}

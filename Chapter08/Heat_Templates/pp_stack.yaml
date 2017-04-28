@@ -1,0 +1,75 @@
+heat_template_version: 2013-05-23
+
+description: Create Mutli-Tier Application Stack
+
+parameters:
+  image:
+    type: string
+    default: centos7
+  flavor:
+    type: string
+    default: m1.medium
+  key:
+    type: string
+    default: my_key
+  public_network:
+    type: string
+    default: Public_Network
+  private_network:
+    type: string
+    default: Private_Network
+
+resources:
+  network:
+    type: Lib::PacktPub::PrivNet
+    properties:
+      public_network: { get_param: public_network }
+
+  mariadb:
+    type: Lib::PacktPub::MariaDB
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key: { get_param: key }
+      private_network: { get_attr: [network, name] }
+      database_name: website
+      database_user: website_user
+
+  server:
+    type: Lib::PacktPub::Httpd
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key: { get_param: key }
+      private_network: { get_attr: [network, name] }
+      mysql_server: { get_attr: [mariadb, ip] }
+      database_name: website
+      database_user: website_user
+      database_password: { get_attr: [mariadb, database_password] }
+
+  pool:
+    type: OS::Neutron::Pool
+    properties:
+      protocol: HTTP
+      monitors: [{get_resource: monitor}]
+      subnet_id: {get_param: private_network}
+      lb_method: ROUND_ROBIN
+      vip:
+        protocol_port: 80
+
+  loadbalancer:
+    type: OS::Neutron::LoadBalancer
+    properties:
+      protocol_port: 80
+      pool_id: {get_resource: pool}
+
+  public_ip:
+    type: Lib::PacktPub::PubNet
+    properties:
+      port: { get_attr: [server, port] }
+      public_network: { get_param: public_network }
+
+outputs:
+  ip:
+    description: Web Server Public IP
+    value: { get_attr: [public_ip, ip] }

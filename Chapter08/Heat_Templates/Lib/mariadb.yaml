@@ -1,0 +1,90 @@
+heat_template_version: 2013-05-23
+
+description: installs a maridb server with a database.
+
+parameters:
+   image:
+     type: string
+     default: centos7
+   flavor:
+     type: string
+     default: m1.medium
+   key:
+     type: string
+     default: my_key
+   private_network:
+     type: string
+     default: privateNet
+   database_name:
+     type: string
+   database_user:
+     type: string
+
+
+resources:
+  database_root_password:
+    type: OS::Heat::RandomString
+  database_password:
+    type: OS::Heat::RandomString
+  database_root_password:
+    type: OS::Heat::RandomString
+
+  security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: db_server_security_group
+      rules:
+        - protocol: tcp
+          port_range_min: 3306
+          port_range_max: 3306
+  port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_param: private_network }
+      security_groups:
+        - { get_resource: security_group }
+
+  mariadb_instance:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: { get_param: key }
+      networks:
+        - port: { get_resource: port }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          params:
+            __database_root_password__: { get_attr: [database_root_password, value] }
+            __database_name__: { get_param: database_name }
+            __database_user__: { get_param: database_user }
+            __database_password__: { get_attr: [database_password, value] }
+          template: |
+            #!/bin/bash -v
+            yum -y install mariadb mariadb-server
+            systemctl enable mariadb.service
+            systemctl start mariadb.service
+            mysqladmin -u root password $db_rootpassword
+            cat << EOF | mysql -u root --password=$db_rootpassword
+            CREATE DATABASE $db_name;
+            GRANT ALL PRIVILEGES ON $db_name.* TO "$db_user"@"%"
+            IDENTIFIED BY "$db_password";
+            FLUSH PRIVILEGES;
+            EXIT
+            EOF
+
+
+outputs:
+  name:
+    description: Database Name.
+    value: { get_attr: [mariadb_instance, name] }
+  ip:
+    description: Database IP address.
+    value: { get_attr: [mariadb_instance, first_address] }
+  port:
+    description: Database port number.
+    value: { get_resource: port }
+  database_password:
+    description: Database password.
+    value: { get_attr: [database_password, value] }

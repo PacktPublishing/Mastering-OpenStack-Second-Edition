@@ -1,0 +1,75 @@
+heat_template_version: 2013-05-23
+
+
+description: Installs a web server running httpd.
+
+
+parameters:
+  image:
+    type: string
+    default: centos7
+  flavor:
+    type: string
+    default: m1.small
+  key:
+    type: string
+    default: my_key
+  private_network:
+    type: string
+    default: Private_Network
+
+
+resources:
+  security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: web_server_sg
+      rules:
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: tcp
+          port_range_min: 80
+          port_range_max: 80
+
+
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: tcp
+          port_range_min: 443
+          port_range_max: 443
+
+
+  port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_param: private_network }
+      security_groups:
+        - { get_resource: security_group }
+
+
+  ws_instance:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: { get_param: key }
+      networks:
+        - port: { get_resource: port }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+         template: |
+          #!/bin/bash -ex
+          yum -y install httpd
+          systemctl enable httpd.service
+          systemctl start httpd.service
+          setsebool -P httpd_can_network_connect_db=1
+
+outputs:
+  name:
+    description: Web Server instance.
+    value: { get_attr: [ws_instance, name] }
+  ip:
+    description: Web Server IP address.
+    value: { get_attr: [ws_instance, first_address] }
+  port:
+    description: Web Server Port number
+    value: { get_resource: port }

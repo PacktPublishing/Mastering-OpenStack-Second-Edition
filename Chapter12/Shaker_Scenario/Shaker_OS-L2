@@ -1,0 +1,28 @@
+title: OpenStack L2
+
+description:
+  Benchmark Layer 2 connectivity performance. The shaker scenario will launch pairs of instances in separate compute node.
+  
+deployment:
+  template: l2.hot
+  accommodation: [pair, single_room, compute_nodes: 1]
+
+execution:
+  progression: quadratic
+  tests:
+  -
+    title: Download
+    class: flent
+    method: tcp_download
+  -
+    title: Upload
+    class: flent
+    method: tcp_upload
+  -
+    title: Bi-directional
+    class: flent
+    method: tcp_bidirectional
+   -
+    title: UDP-Bursts
+    class: flent
+    method: bursts
