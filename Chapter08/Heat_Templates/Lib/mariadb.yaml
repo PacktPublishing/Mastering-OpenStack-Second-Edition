@@ -1,6 +1,6 @@
 heat_template_version: 2013-05-23
 
-description: installs a maridb server with a database.
+description: installs a mariadb server with a database.
 
 parameters:
    image:
